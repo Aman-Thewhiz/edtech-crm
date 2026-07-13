@@ -183,7 +183,10 @@ export default function StudentProfilePage() {
                   <Box key={item._id || item.url} p={4} borderRadius="xl" border="1px solid" borderColor="brand.hairline">
                     <Text fontWeight="700">{item.name}</Text>
                     <Text color="gray.600">{item.type}</Text>
-                    <Link href={`http://localhost:4011${item.url}`} isExternal>{item.fileName}</Link>
+                    <Link
+  href={`${import.meta.env.VITE_API_URL}${item.url}`}
+  isExternal
+>{item.fileName}</Link>
                   </Box>
                 ))}
               </VStack>
