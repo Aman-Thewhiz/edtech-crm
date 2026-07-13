@@ -1,0 +1,76 @@
+import express from 'express';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xssClean from 'xss-clean';
+import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import batchRoutes from './routes/batchRoutes.js';
+import leadRoutes from './routes/leadRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import admissionRoutes from './routes/admissionRoutes.js';
+import invoiceRoutes from "./routes/invoiceRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import departmentRoutes from "./routes/departmentRoutes.js";
+import designationRoutes from "./routes/designationRoutes.js";
+import employeeRoutes from "./routes/employeeRoutes.js";
+import attendanceRoutes from "./routes/attendanceRoutes.js";
+import leaveRoutes from "./routes/leaveRoutes.js";
+import payrollRoutes from "./routes/payrollRoutes.js";
+import reportsRoutes from "./routes/reportsRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import auditLogRoutes from "./routes/auditLogRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import { auditLog } from './middleware/auditLog.js';
+import { notFound } from './middleware/notFound.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
+const app = express();
+const uploadsPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'uploads');
+
+app.use(helmet());
+app.use(cors({ origin: true, credentials: true }));
+app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
+app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(morgan('dev'));
+app.use(auditLog);
+app.use('/uploads', express.static(uploadsPath));
+
+app.get('/api/v1/health', (_req, res) => {
+  res.json({ success: true, data: { status: 'ok' } });
+});
+
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/courses', courseRoutes);
+app.use('/api/v1/batches', batchRoutes);
+app.use('/api/v1/leads', leadRoutes);
+app.use('/api/v1/students', studentRoutes);
+app.use('/api/v1/admissions', admissionRoutes);
+app.use("/api/v1/invoices", invoiceRoutes);
+app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/departments", departmentRoutes);
+app.use("/api/v1/designations", designationRoutes);
+app.use("/api/v1/employees", employeeRoutes);
+app.use("/api/v1/attendance", attendanceRoutes);
+app.use("/api/v1/leaves", leaveRoutes);
+app.use("/api/v1/payroll", payrollRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/reports", reportsRoutes);
+app.use("/api/v1/settings", settingsRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/audit-logs", auditLogRoutes);
+app.use(notFound);
+app.use(errorHandler);
+
+export default app;
