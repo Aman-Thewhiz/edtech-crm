@@ -133,7 +133,7 @@ export default function LeavePolicyFormPage() {
                 <option value="">Select leave type</option>
                 {leaveTypeOptions.map((type) => (
                   <option key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  {String(type || "").charAt(0).toUpperCase() + String(type || "").slice(1)}
                   </option>
                 ))}
               </Select>

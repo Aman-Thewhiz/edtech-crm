@@ -248,7 +248,7 @@ export async function notifyLeaveStatusChange(leaveRequestId, employeeId, status
   await createNotification({
     recipient: employeeId,
     type: 'leave_status_changed',
-    title: `Leave Request ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}`,
+    title: `Leave Request ${String(statusText || "").charAt(0).toUpperCase() + String(statusText || "").slice(1)}`,
     message: `Your leave request has been ${statusText}`,
     relatedEntity: 'leave',
     relatedEntityId: leaveRequestId,

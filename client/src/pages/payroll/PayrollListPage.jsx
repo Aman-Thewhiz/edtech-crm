@@ -87,7 +87,7 @@ export default function PayrollListPage() {
       accessor: 'status',
       render: (value) => (
         <Badge colorScheme={statusColors[value] || 'gray'}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+         {String(value || "").charAt(0).toUpperCase() + String(value || "").slice(1)}
         </Badge>
       ),
     },
