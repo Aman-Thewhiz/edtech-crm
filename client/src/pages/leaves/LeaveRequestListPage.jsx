@@ -80,71 +80,80 @@ setPagination({
     }
   };
 
-  const columns = [
-    {
-      header: 'Employee',
-      accessor: 'employee',
-      render: (value) => <Text fontWeight="600">{value?.name || 'N/A'}</Text>,
-    },
-    {
-      header: 'Leave Type',
-      accessor: 'leavePolicy',
-      render: (value) => <Text>{value?.leaveType || 'N/A'}</Text>,
-    },
-    {
-      header: 'Start Date',
-      accessor: 'startDate',
-      render: (value) => <Text>{new Date(value).toLocaleDateString()}</Text>,
-    },
-    {
-      header: 'End Date',
-      accessor: 'endDate',
-      render: (value) => <Text>{new Date(value).toLocaleDateString()}</Text>,
-    },
-    {
-      header: 'Days',
-      accessor: 'numberOfDays',
-      render: (value) => <Text>{value}</Text>,
-    },
-    {
-      header: 'Status',
-      accessor: 'status',
-      render: (value) => (
-        <Badge colorScheme={statusColors[value] || 'gray'}>
-         {String(value || "")
-  .charAt(0)
-  .toUpperCase() +
-  String(value || "").slice(1)}
-        </Badge>
-      ),
-    },
-    {
-  
-  header: 'Actions',
-  render: (_, row) => (
-    <HStack spacing={2}>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => navigate(`/leaves/requests/${row._id}`)}
-      >
-        View
-      </Button>
-
-      {row.status === 'applied' && (
+const columns = [
+  {
+    header: "Employee",
+    render: (row) => (
+      <Text fontWeight="600">
+        {row.employee?.name || "N/A"}
+      </Text>
+    ),
+  },
+  {
+    header: "Leave Type",
+    render: (row) => (
+      <Text>
+        {row.leavePolicy?.leaveType || "N/A"}
+      </Text>
+    ),
+  },
+  {
+    header: "Start Date",
+    render: (row) => (
+      <Text>
+        {new Date(row.startDate).toLocaleDateString()}
+      </Text>
+    ),
+  },
+  {
+    header: "End Date",
+    render: (row) => (
+      <Text>
+        {new Date(row.endDate).toLocaleDateString()}
+      </Text>
+    ),
+  },
+  {
+    header: "Days",
+    render: (row) => (
+      <Text>{row.numberOfDays}</Text>
+    ),
+  },
+  {
+    header: "Status",
+    render: (row) => (
+      <Badge colorScheme={statusColors[row.status] || "gray"}>
+        {String(row.status || "").charAt(0).toUpperCase() +
+          String(row.status || "").slice(1)}
+      </Badge>
+    ),
+  },
+  {
+    header: "Actions",
+    render: (row) => (
+      <HStack spacing={2}>
         <Button
           size="sm"
-          colorScheme="red"
           variant="outline"
-          onClick={() => handleCancel(row._id)}
+          onClick={() => navigate(`/leaves/requests/${row._id}`)}
         >
-          Cancel
+          View
         </Button>
-      )}
-    </HStack>
-  ),
-},
-  ];
+
+        {row.status === "applied" && (
+          <Button
+            size="sm"
+            colorScheme="red"
+            variant="outline"
+            onClick={() => handleCancel(row._id)}
+          >
+            Cancel
+          </Button>
+        )}
+      </HStack>
+    ),
+  },
+];
 
   return (
     <PageWrapper>
