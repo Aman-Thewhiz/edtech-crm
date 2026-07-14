@@ -190,11 +190,11 @@ console.log("PAYLOAD =", payload);
               placeholder="Select student"
               isDisabled={isEdit}
             >
-              {students.map((student) => (
-                <option key={student._id} value={student._id}>
-                  {student.name} ({student.enrollmentNumber})
-                </option>
-              ))}
+             {students.map((student) => (
+  <option key={student.id} value={student.id}>
+    {student.name} ({student.enrollmentNumber})
+  </option>
+))}
             </Select>
           </FormControl>
 
