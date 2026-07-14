@@ -21,6 +21,7 @@ import {
   fetchLeavePolicies,
   fetchEmployeeLeaveBalances,
 } from '../../services/leaves';
+import { fetchEmployees } from '../../services/employees';
 
 export default function LeaveRequestFormPage() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function LeaveRequestFormPage() {
   const [saving, setSaving] = useState(false);
   const [policies, setPolicies] = useState([]);
   const [balances, setBalances] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
     employee: '',
     leavePolicy: '',
@@ -63,14 +65,23 @@ export default function LeaveRequestFormPage() {
     }
   }, [requestId]);
 
-  const loadPolicies = async () => {
-    try {
-      const result = await fetchLeavePolicies({ isActive: true, limit: 100 });
-      setPolicies(result.data);
-    } catch (error) {
-      toast({ title: 'Error loading policies', description: error.message, status: 'error' });
-    }
-  };
+const loadPolicies = async () => {
+  try {
+    const [policyResult, employeeResult] = await Promise.all([
+      fetchLeavePolicies({ isActive: true, limit: 100 }),
+      fetchEmployees({ limit: 100 }),
+    ]);
+
+    setPolicies(policyResult.data || []);
+    setEmployees(employeeResult.data || []);
+  } catch (error) {
+    toast({
+      title: 'Error loading data',
+      description: error.message,
+      status: 'error',
+    });
+  }
+};
 
   const loadBalances = async (employeeId) => {
     try {
@@ -110,18 +121,18 @@ export default function LeaveRequestFormPage() {
 
     setSaving(true);
     try {
-      const payload = {
-        employee: formData.employee,
-        leavePolicy: formData.leavePolicy,
-        startDate: new Date(formData.startDate),
-        endDate: new Date(formData.endDate),
-        numberOfDays: parseFloat(formData.numberOfDays),
-        reason: formData.reason,
-        notes: formData.notes,
-      };
+  const payload = {
+  employee: formData.employee,
+  leavePolicy: formData.leavePolicy,
+  startDate: new Date(formData.startDate),
+  endDate: new Date(formData.endDate),
+  numberOfDays: parseFloat(formData.numberOfDays),
+  reason: formData.reason,
+  notes: formData.notes.trim() || undefined,
+};
 
       if (requestId) {
-        // Note: Update not supported in Phase 12, only create
+        
         toast({ title: 'Update not available for leave requests', status: 'info' });
       } else {
         const request = await createLeaveRequest(payload);
@@ -153,15 +164,21 @@ export default function LeaveRequestFormPage() {
         <form onSubmit={handleSubmit}>
           <VStack align="stretch" spacing={4}>
             <FormControl isRequired>
-              <FormLabel>Employee</FormLabel>
-              <Input
-                type="text"
-                placeholder="Employee ID"
-                value={formData.employee}
-                onChange={(e) => handleChange('employee', e.target.value)}
-                disabled={requestId}
-              />
-            </FormControl>
+  <FormLabel>Employee</FormLabel>
+
+  <Select
+    placeholder="Select Employee"
+    value={formData.employee}
+    onChange={(e) => handleChange('employee', e.target.value)}
+    disabled={requestId}
+  >
+    {employees.map((employee) => (
+      <option key={employee.id} value={employee.id}>
+        {employee.name} ({employee.employeeId})
+      </option>
+    ))}
+  </Select>
+</FormControl>
 
             <FormControl isRequired>
               <FormLabel>Leave Type</FormLabel>

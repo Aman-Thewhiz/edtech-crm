@@ -4,7 +4,7 @@ function envelope(res, data, message = "Success", statusCode = 200) {
   return res.status(statusCode).json({ success: true, data, message });
 }
 
-// ============ LEAVE POLICY ENDPOINTS ============
+
 
 export async function createLeavePolicy(req, res, next) {
   try {
@@ -61,7 +61,7 @@ export async function deleteLeavePolicy(req, res, next) {
   }
 }
 
-// ============ LEAVE REQUEST ENDPOINTS ============
+
 
 export async function createLeaveRequest(req, res, next) {
   try {
@@ -131,7 +131,7 @@ export async function cancelLeaveRequest(req, res, next) {
   }
 }
 
-// ============ LEAVE BALANCE ENDPOINTS ============
+
 
 export async function getLeaveBalances(req, res, next) {
   try {

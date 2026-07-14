@@ -11,7 +11,7 @@ import {
 } from "../validations/leaveValidation.js";
 import { notifyLeaveStatusChange } from "./notificationService.js";
 
-// ============ LEAVE POLICY FUNCTIONS ============
+
 
 function mapLeavePolicy(policy) {
   return {
@@ -106,7 +106,6 @@ export async function deleteLeavePolicy(id) {
   return { message: "Leave policy deleted" };
 }
 
-// ============ LEAVE REQUEST FUNCTIONS ============
 
 function mapLeaveRequest(request) {
   return {
@@ -150,7 +149,6 @@ export async function createLeaveRequest(data, userId) {
     throw new Error("Leave policy not found or inactive.");
   }
 
-  // Check for overlapping leave requests
   const overlapping = await LeaveRequest.findOne({
     employee,
     status: { $in: ["applied", "pending", "approved"] },
@@ -172,7 +170,7 @@ export async function createLeaveRequest(data, userId) {
     throw new Error("Cannot apply for leave in the past.");
   }
 
-  // Check leave balance
+
   const currentYear = new Date().getFullYear();
   const financialYear = `${currentYear}-${currentYear + 1}`;
   const balance = await LeaveBalance.findOne({
@@ -330,7 +328,7 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
   ) {
     leaveRequest.status = "approved";
 
-    // Create attendance records for approved leave
+  
     const startDate = new Date(leaveRequest.startDate);
     const endDate = new Date(leaveRequest.endDate);
 
@@ -355,7 +353,7 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
       }
     }
 
-    // Update leave balance
+    
     const currentYear = new Date().getFullYear();
     const financialYear = `${currentYear}-${currentYear + 1}`;
     const balance = await LeaveBalance.findOne({
@@ -398,7 +396,7 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
 
   await leaveRequest.save();
 
-  // Notify employee about status change
+  
   if (leaveRequest.status !== "pending") {
     await notifyLeaveStatusChange(leaveRequest._id, leaveRequest.employee, leaveRequest.status);
   }
@@ -418,7 +416,7 @@ export async function cancelLeaveRequest(id, data, userId) {
   }
 
   if (leaveRequest.status === "approved") {
-    // Delete attendance records
+    
     await Attendance.updateMany(
       {
         date: { $gte: leaveRequest.startDate, $lte: leaveRequest.endDate },
@@ -429,7 +427,7 @@ export async function cancelLeaveRequest(id, data, userId) {
       { isDeleted: true, deletedAt: new Date() }
     );
 
-    // Restore leave balance
+    
     const currentYear = new Date().getFullYear();
     const financialYear = `${currentYear}-${currentYear + 1}`;
     const balance = await LeaveBalance.findOne({
@@ -453,7 +451,7 @@ export async function cancelLeaveRequest(id, data, userId) {
 
   await leaveRequest.save();
 
-  // Notify employee about cancellation
+  
   await notifyLeaveStatusChange(leaveRequest._id, leaveRequest.employee, "cancelled");
 
   return leaveRequest.populate([
@@ -464,7 +462,7 @@ export async function cancelLeaveRequest(id, data, userId) {
   ]);
 }
 
-// ============ LEAVE BALANCE FUNCTIONS ============
+
 
 function mapLeaveBalance(balance) {
   return {
