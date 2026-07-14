@@ -45,9 +45,18 @@ export default function LeaveRequestListPage() {
     try {
       const params = { ...filters, limit: 10 };
       Object.keys(params).forEach((key) => !params[key] && delete params[key]);
-      const result = await fetchLeaveRequests(params);
-      setRequests(result.data);
-      setPagination(result.pagination);
+    const result = await fetchLeaveRequests(params);
+
+console.log("Leave Requests API:", result);
+
+setRequests(result.data);
+
+setPagination({
+  page: result.page,
+  limit: result.limit,
+  total: result.total,
+  totalPages: result.totalPages,
+});
     } catch (error) {
       toast({ title: 'Error loading requests', description: error.message, status: 'error' });
     } finally {
