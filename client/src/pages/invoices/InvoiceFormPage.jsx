@@ -76,7 +76,7 @@ export default function InvoiceFormPage() {
       items: current.items.map((item, itemIndex) => {
         if (itemIndex === index) {
           const updated = { ...item, [field]: value };
-          // Recalculate total if quantity or amount changes
+         
           if (field === 'quantity' || field === 'amount') {
             updated.total = Number(updated.quantity) * Number(updated.amount);
           }
@@ -143,6 +143,9 @@ export default function InvoiceFormPage() {
       tax: Number(form.tax),
       notes: form.notes,
     };
+
+    console.log("FORM =", form);
+console.log("PAYLOAD =", payload);
 
     try {
       if (isEdit) {

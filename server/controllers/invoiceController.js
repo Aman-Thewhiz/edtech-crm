@@ -8,7 +8,7 @@ function envelope(res, data, message = 'Success', statusCode = 200) {
 export async function createInvoice(req, res, next) {
   try {
     console.log("\n========== CREATE INVOICE REQUEST ==========");
-    console.log(JSON.stringify(req.body, null, 2));
+    console.log("BODY:", JSON.stringify(req.body, null, 2));
     console.log("============================================\n");
 
     const invoice = await invoiceService.createInvoice(req.body);
@@ -16,8 +16,9 @@ export async function createInvoice(req, res, next) {
     return envelope(res, { invoice }, "Invoice created", 201);
   } catch (error) {
     console.error("\n========== CREATE INVOICE ERROR ==========");
-    console.error(error);
-    console.error(error.stack);
+    console.error("MESSAGE:", error.message);
+    console.error("STACK:", error.stack);
+    console.error("REQUEST BODY:", JSON.stringify(req.body, null, 2));
     console.error("=========================================\n");
 
     next(error);
