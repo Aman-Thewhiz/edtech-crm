@@ -105,8 +105,8 @@ export default function AttendanceMarkingPage() {
   const handleMarkAll = (status) => {
     const newAttendance = {};
     entities.forEach((entity) => {
-      newAttendance[entity._id] = status;
-    });
+    newAttendance[entity.id] = status;
+});
     setAttendance(newAttendance);
   };
 
@@ -228,14 +228,16 @@ export default function AttendanceMarkingPage() {
                 </Thead>
                 <Tbody>
                   {entities.map((entity) => (
-                    <Tr key={entity._id}>
+                    <Tr key={entity.id}>
                       <Td>{entity.name || entity.firstName}</Td>
                       <Td>{entity.enrollmentNumber || entity.employeeId}</Td>
                       <Td>
                         <Select
                           size="sm"
-                          value={attendance[entity._id] || ''}
-                          onChange={(e) => handleAttendanceChange(entity._id, e.target.value)}
+                          value={attendance[entity.id] || ''}
+                         onChange={(e) =>
+    handleAttendanceChange(entity.id, e.target.value)
+}
                         >
                           <option value="">Select status</option>
                           {statusOptions.map((status) => (
