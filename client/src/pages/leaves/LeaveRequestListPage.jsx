@@ -34,7 +34,12 @@ export default function LeaveRequestListPage() {
     employee: '',
     page: 1,
   });
-  const [pagination, setPagination] = useState({});
+ const [pagination, setPagination] = useState({
+  page: 1,
+  limit: 10,
+  total: 0,
+  totalPages: 1,
+});
 
   useEffect(() => {
     loadRequests();
@@ -114,29 +119,31 @@ setPagination({
       ),
     },
     {
-      header: 'Actions',
-      render: (row) => (
-        <HStack spacing={2}>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => navigate(`/leaves/requests/${row._id}`)}
-          >
-            View
-          </Button>
-          {row.status === 'applied' && (
-            <Button
-              size="sm"
-              colorScheme="red"
-              variant="outline"
-              onClick={() => handleCancel(row._id)}
-            >
-              Cancel
-            </Button>
-          )}
-        </HStack>
-      ),
-    },
+  
+  header: 'Actions',
+  render: (_, row) => (
+    <HStack spacing={2}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => navigate(`/leaves/requests/${row._id}`)}
+      >
+        View
+      </Button>
+
+      {row.status === 'applied' && (
+        <Button
+          size="sm"
+          colorScheme="red"
+          variant="outline"
+          onClick={() => handleCancel(row._id)}
+        >
+          Cancel
+        </Button>
+      )}
+    </HStack>
+  ),
+},
   ];
 
   return (
@@ -171,7 +178,7 @@ setPagination({
         </HStack>
 
         <Box overflowX="auto">
-          console.log("Requests:", requests);
+          
           <DataTable
             columns={columns}
             data={requests}
