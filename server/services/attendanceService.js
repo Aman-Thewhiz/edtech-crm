@@ -32,7 +32,7 @@ export async function markAttendance(data, userId) {
 
   const { date, entityType, entityId, status, remarks } = validation.data;
 
-  // Verify entity exists
+  
   if (entityType === "student") {
     const student = await Student.findById(entityId);
     if (!student) throw new Error("Student not found.");
@@ -41,7 +41,7 @@ export async function markAttendance(data, userId) {
     if (!employee) throw new Error("Employee not found.");
   }
 
-  // Check if attendance already exists for this date
+
   const existing = await Attendance.findOne({
     date: new Date(date),
     entityType,
@@ -84,6 +84,7 @@ export async function bulkMarkAttendance(data, userId) {
   const errors = [];
 
   for (const item of attendanceData) {
+    console.log(item);
     try {
       const attendanceRecord = await Attendance.findOneAndUpdate(
         {
@@ -107,11 +108,13 @@ export async function bulkMarkAttendance(data, userId) {
 
       results.push(attendanceRecord);
     } catch (error) {
-      errors.push({
-        entityId: item.entityId,
-        error: error.message,
-      });
-    }
+  console.log("Attendance Error:", error);
+
+  errors.push({
+    entityId: item.entityId,
+    error: error.message,
+  });
+}
   }
 
   return {
