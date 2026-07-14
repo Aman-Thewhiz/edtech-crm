@@ -18,8 +18,12 @@ export default function DataTable({ columns = [], data = [] }) {
               {columns.map((column) => (
                 <Td key={column.header}>
   {column.render
-    ? column.render(row[column.accessor], row)
-    : row[column.accessor]}
+  ? (
+      column.render.length >= 2
+        ? column.render(row[column.accessor], row)
+        : column.render(row)
+    )
+  : row[column.accessor]}
 </Td>
               ))}
             </Tr>
