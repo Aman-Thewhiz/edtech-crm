@@ -74,6 +74,7 @@ const loadPolicies = async () => {
 
     setPolicies(policyResult.data || []);
     setEmployees(employeeResult.data || []);
+    console.log(employeeResult.data);
   } catch (error) {
     toast({
       title: 'Error loading data',
@@ -174,8 +175,8 @@ const loadPolicies = async () => {
   >
     {employees.map((employee) => (
       <option key={employee.id} value={employee.id}>
-        {employee.name} ({employee.employeeId})
-      </option>
+  {employee.name} ({employee.employeeId})
+</option>
     ))}
   </Select>
 </FormControl>
