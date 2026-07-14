@@ -10,7 +10,7 @@ function toSearchParams(params = {}) {
   return searchParams.toString();
 }
 
-// ============ SALARY STRUCTURE ENDPOINTS ============
+
 
 export async function createSalaryStructure(payload) {
   const { data } = await api.post('/payroll/salary-structures', payload);
@@ -37,7 +37,7 @@ export async function deleteSalaryStructure(id) {
   return data.data;
 }
 
-// ============ PAYROLL ENDPOINTS ============
+
 
 export async function generatePayroll(employeeId, payload) {
   const { data } = await api.post(`/payroll/employees/${employeeId}/payroll`, payload);
@@ -74,7 +74,7 @@ export async function deletePayroll(id) {
   return data.data;
 }
 
-// ============ PAYSLIP ENDPOINTS ============
+
 
 export async function createPayslip(payrollId) {
   const { data } = await api.post(`/payroll/payroll/${payrollId}/payslip`);

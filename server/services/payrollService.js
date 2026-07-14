@@ -12,7 +12,7 @@ import {
 } from '../validations/payrollValidation.js';
 import { notifyPayrollProcessed } from './notificationService.js';
 
-// ============ SALARY STRUCTURE FUNCTIONS ============
+
 
 function mapSalaryStructure(structure) {
   return {
@@ -140,7 +140,7 @@ export async function deleteSalaryStructure(id) {
   return { message: 'Salary structure deleted' };
 }
 
-// ============ PAYROLL FUNCTIONS ============
+
 
 function mapPayroll(payroll) {
   return {
@@ -171,7 +171,7 @@ export async function calculateAttendanceData(employeeId, month, year) {
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0);
 
-  // Get all holidays in the month
+ 
   const holidays = await Holiday.find({
     date: { $gte: startDate, $lte: endDate },
     isDeleted: false,
@@ -179,7 +179,7 @@ export async function calculateAttendanceData(employeeId, month, year) {
 
   const holidayDates = new Set(holidays.map((h) => h.date.toDateString()));
 
-  // Get attendance records
+ 
   const attendanceRecords = await Attendance.find({
     entityType: 'employee',
     entityId: employeeId,
@@ -198,13 +198,13 @@ export async function calculateAttendanceData(employeeId, month, year) {
     attendanceMap[record.date.toDateString()] = record.status;
   });
 
-  // Count working days
+  
   let totalWorkingDays = 0;
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = d.toDateString();
     const dayOfWeek = d.getDay();
 
-    // Skip weekends (Saturday = 6, Sunday = 0)
+    
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
     if (holidayDates.has(dateStr)) {
@@ -241,7 +241,7 @@ export async function generatePayroll(employeeId, month, year, data, userId) {
     throw new Error(validation.errors.join(', '));
   }
 
-  // Check if payroll already exists
+  
   const existing = await Payroll.findOne({
     employee: employeeId,
     month,
@@ -253,19 +253,19 @@ export async function generatePayroll(employeeId, month, year, data, userId) {
     throw new Error('Payroll already exists for this employee and month.');
   }
 
-  // Get active salary structure
+  
   const salaryStructure = await getActiveSalaryStructure(employeeId, new Date(year, month - 1, 1));
 
-  // Calculate attendance data
+  
   const attendanceData = await calculateAttendanceData(employeeId, month, year);
 
-  // Calculate loss of pay (for absences beyond allowed limit)
-  const allowedAbsences = 2; // Configurable
+  
+  const allowedAbsences = 2; 
   const excessAbsences = Math.max(0, attendanceData.absentDays - allowedAbsences);
   const dailyRate = salaryStructure.basic / attendanceData.totalWorkingDays;
   const lossOfPay = excessAbsences * dailyRate;
 
-  // Calculate earnings
+ 
   const allowancesTotal = salaryStructure.allowances.reduce((sum, a) => {
     return sum + (a.isPercentageOfBasic ? (salaryStructure.basic * a.amount) / 100 : a.amount);
   }, 0);
@@ -279,7 +279,7 @@ export async function generatePayroll(employeeId, month, year, data, userId) {
     total: salaryStructure.basic + salaryStructure.hra + salaryStructure.da + allowancesTotal + (data.bonus || 0),
   };
 
-  // Calculate deductions
+  
   const deductionsTotal = salaryStructure.deductions.reduce((sum, d) => {
     return sum + (d.isPercentageOfBasic ? (salaryStructure.basic * d.amount) / 100 : d.amount);
   }, 0);

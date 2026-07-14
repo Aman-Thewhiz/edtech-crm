@@ -55,6 +55,7 @@ import PayrollDetailPage from './pages/payroll/PayrollDetailPage';
 import ReportsDashboardPage from './pages/reports/ReportsDashboardPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import NotFoundPage from './pages/NotFoundPage';
+import PayrollGeneratePage from "./pages/payroll/PayrollGeneratePage";
 
 export default function App() {
   return (
@@ -123,6 +124,7 @@ export default function App() {
         <Route path="leaves/balance" element={<LeaveBalancePage />} />
         <Route path="payroll/salary-structures" element={<SalaryStructureListPage />} />
         <Route path="payroll/payroll" element={<PayrollListPage />} />
+        <Route path="payroll/payroll/generate" element={<PayrollGeneratePage />} />
         <Route path="payroll/payroll/:payrollId" element={<PayrollDetailPage />} />
         <Route path="reports" element={<ReportsDashboardPage />} />
         <Route path="notifications" element={<NotificationListPage />} />
