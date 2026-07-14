@@ -137,13 +137,12 @@ export async function createLeaveRequest(data, userId) {
 
   const { employee, leavePolicy, startDate, endDate, numberOfDays } = validation.data;
 
-  // Verify employee exists
   const emp = await Employee.findById(employee);
   if (!emp || emp.isDeleted) {
     throw new Error("Employee not found.");
   }
 
-  // Verify leave policy exists
+
   const policy = await LeavePolicy.findById(leavePolicy);
   if (!policy || policy.isDeleted || !policy.isActive) {
     throw new Error("Leave policy not found or inactive.");
@@ -161,14 +160,20 @@ export async function createLeaveRequest(data, userId) {
     throw new Error("Employee already has overlapping leave request.");
   }
 
-  // Validate dates
+ 
   if (new Date(startDate) > new Date(endDate)) {
     throw new Error("Start date must be before end date.");
   }
 
-  if (new Date(startDate) < new Date()) {
-    throw new Error("Cannot apply for leave in the past.");
-  }
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const leaveStart = new Date(startDate);
+leaveStart.setHours(0, 0, 0, 0);
+
+if (leaveStart < today) {
+  throw new Error("Cannot apply for leave in the past.");
+}
 
 
   const currentYear = new Date().getFullYear();
