@@ -174,7 +174,7 @@ const loadPolicies = async () => {
     disabled={requestId}
   >
     {employees.map((employee) => (
-      <option key={employee.id} value={employee.id}>
+  <option key={employee._id} value={employee._id}>
   {employee.name} ({employee.employeeId})
 </option>
     ))}
