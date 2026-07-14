@@ -47,6 +47,7 @@ export default function PayrollListPage() {
       const params = { ...filters, limit: 10 };
       Object.keys(params).forEach((key) => !params[key] && delete params[key]);
       const result = await fetchPayrolls(params);
+      console.log("Payroll API:", result);
       setPayrolls(result.data);
       setPagination(result.pagination);
     } catch (error) {
