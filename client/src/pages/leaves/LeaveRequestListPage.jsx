@@ -171,6 +171,7 @@ setPagination({
         </HStack>
 
         <Box overflowX="auto">
+          console.log("Requests:", requests);
           <DataTable
             columns={columns}
             data={requests}
