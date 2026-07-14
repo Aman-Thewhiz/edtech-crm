@@ -6,7 +6,11 @@ function envelope(res, data, message = "Success", statusCode = 200) {
 
 export async function markAttendance(req, res, next) {
   try {
-    const attendance = await attendanceService.markAttendance(req.body, req.user.sub);
+    const attendance = await attendanceService.markAttendance(
+      req.body,
+      req.user?.sub || null
+    );
+
     return envelope(res, { attendance }, "Attendance marked", 201);
   } catch (error) {
     next(error);
@@ -15,7 +19,11 @@ export async function markAttendance(req, res, next) {
 
 export async function bulkMarkAttendance(req, res, next) {
   try {
-    const result = await attendanceService.bulkMarkAttendance(req.body, req.user.sub);
+    const result = await attendanceService.bulkMarkAttendance(
+      req.body,
+      req.user?.sub || null
+    );
+
     return envelope(res, result, "Bulk attendance marked");
   } catch (error) {
     next(error);

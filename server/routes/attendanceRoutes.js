@@ -3,7 +3,7 @@ import * as attendanceController from "../controllers/attendanceController.js";
 
 const router = Router();
 
-// Attendance endpoints
+
 router.post("/", attendanceController.markAttendance);
 
 router.post("/bulk", attendanceController.bulkMarkAttendance);
