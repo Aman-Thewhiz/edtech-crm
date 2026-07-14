@@ -17,10 +17,10 @@ export default function DataTable({ columns = [], data = [] }) {
             <Tr key={row._id || row.id}>
               {columns.map((column) => (
                 <Td key={column.header}>
-                  {column.render
-                    ? column.render(row)
-                    : row[column.accessor]}
-                </Td>
+  {column.render
+    ? column.render(row[column.accessor], row)
+    : row[column.accessor]}
+</Td>
               ))}
             </Tr>
           ))}
