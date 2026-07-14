@@ -6,6 +6,8 @@ import { env } from './config/env.js';
 import { seedUsers } from './utils/seedUsers.js';
 import { seedCourseCategories } from './utils/seedCourseCategories.js';
 import { seedLeavePolicies } from './utils/seedLeavePolicies.js';
+import { seedDepartments } from "./utils/seedDepartments.js";
+import { seedDesignations } from "./utils/seedDesignations.js";
 
 async function bootstrap() {
   await connectDatabase();
@@ -15,6 +17,8 @@ async function bootstrap() {
   await seedUsers();
   await seedCourseCategories();
   await seedLeavePolicies();
+  await seedDepartments();
+  await seedDesignations();
   console.log("Database seeded successfully.");
 
   app.listen(env.PORT, () => {

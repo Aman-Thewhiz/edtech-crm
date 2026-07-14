@@ -11,7 +11,7 @@ export async function generateEmployeeId(departmentId) {
     const deptCode = department.code.toUpperCase().substring(0, 3);
     const currentYear = new Date().getFullYear();
 
-    // Find the highest sequence number for this department in the current year
+   
     const lastEmployee = await Employee.findOne({
       department: departmentId,
       employeeId: new RegExp(`^EMP-${deptCode}-`),
