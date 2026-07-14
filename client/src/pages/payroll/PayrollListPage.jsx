@@ -9,6 +9,7 @@ import {
   useToast,
   Badge,
   VStack,
+  Spacer,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import PageWrapper from '../../components/ui/PageWrapper';
@@ -116,44 +117,55 @@ export default function PayrollListPage() {
           <Text fontSize="2xl" fontWeight="700">Payroll Records</Text>
         </Box>
 
-        <HStack spacing={4} align="flex-end">
-          <Select
-            value={filters.month}
-            onChange={(e) => setFilters({ ...filters, month: parseInt(e.target.value), page: 1 })}
-            maxW="150px"
-          >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-              <option key={month} value={month}>
-                {new Date(2024, month - 1).toLocaleString('default', { month: 'long' })}
-              </option>
-            ))}
-          </Select>
+  <HStack spacing={4} align="flex-end">
 
-          <Select
-            value={filters.year}
-            onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value), page: 1 })}
-            maxW="150px"
-          >
-            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </Select>
+  <Select
+    value={filters.month}
+    onChange={(e) => setFilters({ ...filters, month: parseInt(e.target.value), page: 1 })}
+    maxW="150px"
+  >
+    {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+      <option key={month} value={month}>
+        {new Date(2024, month - 1).toLocaleString('default', { month: 'long' })}
+      </option>
+    ))}
+  </Select>
 
-          <Select
-            placeholder="Filter by status"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-            maxW="200px"
-          >
-            <option value="draft">Draft</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="processed">Processed</option>
-            <option value="paid">Paid</option>
-          </Select>
-        </HStack>
+  <Select
+    value={filters.year}
+    onChange={(e) => setFilters({ ...filters, year: parseInt(e.target.value), page: 1 })}
+    maxW="150px"
+  >
+    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+      <option key={year} value={year}>
+        {year}
+      </option>
+    ))}
+  </Select>
+
+  <Select
+    placeholder="Filter by status"
+    value={filters.status}
+    onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
+    maxW="200px"
+  >
+    <option value="draft">Draft</option>
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="processed">Processed</option>
+    <option value="paid">Paid</option>
+  </Select>
+
+  <Spacer />
+
+  <Button
+    colorScheme="purple"
+    onClick={() => navigate("/payroll/payroll/generate")}
+  >
+    Generate Payroll
+  </Button>
+
+</HStack>
 
         <Box overflowX="auto">
           <DataTable
