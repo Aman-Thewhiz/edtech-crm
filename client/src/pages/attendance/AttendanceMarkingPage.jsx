@@ -59,21 +59,42 @@ export default function AttendanceMarkingPage() {
     ]);
   }, []);
 
-  const loadEntities = async () => {
-    setLoading(true);
-    try {
-      if (entityType === 'student' && batchOrDept) {
-        const response = await fetchStudents({ batch: batchOrDept, limit: 100 });
-        setEntities(response.data || []);
-      } else if (entityType === 'employee' && batchOrDept) {
-        const response = await fetchEmployees({ department: batchOrDept, limit: 100 });
-        setEntities(response.data || []);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+ const loadEntities = async () => {
+  setLoading(true);
 
+  try {
+    if (entityType === 'student' && batchOrDept) {
+
+      console.log("Selected Batch:", batchOrDept);
+
+      const response = await fetchStudents({
+        batch: batchOrDept,
+        limit: 100,
+      });
+
+      console.log("Students Response:", response);
+
+      setEntities(response.data || []);
+    }
+
+    else if (entityType === 'employee' && batchOrDept) {
+
+      console.log("Selected Department:", batchOrDept);
+
+      const response = await fetchEmployees({
+        department: batchOrDept,
+        limit: 100,
+      });
+
+      console.log("Employees Response:", response);
+
+      setEntities(response.data || []);
+    }
+
+  } finally {
+    setLoading(false);
+  }
+};
   const handleAttendanceChange = (entityId, status) => {
     setAttendance((current) => ({
       ...current,
