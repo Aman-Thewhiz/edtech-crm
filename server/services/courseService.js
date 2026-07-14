@@ -19,7 +19,9 @@ function mapCourse(course) {
 
 function mapBatch(batch) {
   return {
+    _id: batch._id,
     id: batch._id,
+
     course: batch.course,
     name: batch.name,
     startDate: batch.startDate,
