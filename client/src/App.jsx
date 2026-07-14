@@ -71,6 +71,10 @@ export default function App() {
           </ProtectedRoute>
         )}
       >
+        <Route
+  path="payroll/payroll/generate"
+  element={<PayrollGeneratePage />}
+/> 
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="leads" element={<LeadListPage />} />
