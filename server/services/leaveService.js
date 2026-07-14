@@ -142,7 +142,6 @@ export async function createLeaveRequest(data, userId) {
     throw new Error("Employee not found.");
   }
 
-
   const policy = await LeavePolicy.findById(leavePolicy);
   if (!policy || policy.isDeleted || !policy.isActive) {
     throw new Error("Leave policy not found or inactive.");
@@ -160,34 +159,59 @@ export async function createLeaveRequest(data, userId) {
     throw new Error("Employee already has overlapping leave request.");
   }
 
- 
   if (new Date(startDate) > new Date(endDate)) {
     throw new Error("Start date must be before end date.");
   }
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const leaveStart = new Date(startDate);
-leaveStart.setHours(0, 0, 0, 0);
-
-if (leaveStart < today) {
-  throw new Error("Cannot apply for leave in the past.");
-}
-
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const leaveStart = new Date(startDate);
+  leaveStart.setHours(0, 0, 0, 0);
+  if (leaveStart < today) {
+    throw new Error("Cannot apply for leave in the past.");
+  }
 
   const currentYear = new Date().getFullYear();
   const financialYear = `${currentYear}-${currentYear + 1}`;
-  const balance = await LeaveBalance.findOne({
+
+  // FIX: Auto-provision a LeaveBalance record if one doesn't exist yet.
+  // Without this, the first-ever request for any employee always fails with
+  // "Insufficient leave balance" even when they have a valid quota.
+  let balance = await LeaveBalance.findOne({
     employee,
     leavePolicy,
     financialYear,
     isDeleted: false,
   });
 
-  if (!balance || balance.balanceDays < numberOfDays) {
-    throw new Error("Insufficient leave balance.");
+  if (!balance) {
+    const allocatedDays = policy.annualQuota || 0;
+    balance = await LeaveBalance.create({
+      employee,
+      leavePolicy,
+      financialYear,
+      openingBalance: 0,
+      allocatedDays,
+      totalAvailable: allocatedDays,
+      usedDays: 0,
+      pendingDays: 0,
+      balanceDays: allocatedDays,
+      carryForwardDays: 0,
+      lapsedDays: 0,
+      lastUpdatedAt: new Date(),
+    });
   }
+
+  if (balance.balanceDays < numberOfDays) {
+    throw new Error(
+      `Insufficient leave balance. Available: ${balance.balanceDays} day(s), Requested: ${numberOfDays} day(s).`
+    );
+  } 
+  
+  balance.pendingDays += numberOfDays;
+balance.balanceDays -= numberOfDays;
+balance.lastUpdatedAt = new Date();
+await balance.save();
 
   const leaveRequest = await LeaveRequest.create({
     employee,
@@ -333,9 +357,13 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
   ) {
     leaveRequest.status = "approved";
 
-  
     const startDate = new Date(leaveRequest.startDate);
     const endDate = new Date(leaveRequest.endDate);
+
+    // FIX: leaveRequest.leavePolicy is a raw ObjectId at this point (not populated),
+    // so leaveRequest.leavePolicy.leaveType would be undefined. Fetch it explicitly.
+    const leavePolicy = await LeavePolicy.findById(leaveRequest.leavePolicy);
+    const leaveTypeLabel = leavePolicy ? leavePolicy.leaveType : "Leave";
 
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const attendanceDate = new Date(d);
@@ -352,13 +380,12 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
           entityType: "employee",
           entityId: leaveRequest.employee,
           status: "on-leave",
-          remarks: `${leaveRequest.leavePolicy.leaveType} leave`,
+          remarks: `${leaveTypeLabel} leave`,
           markedBy: userId,
         });
       }
     }
 
-    
     const currentYear = new Date().getFullYear();
     const financialYear = `${currentYear}-${currentYear + 1}`;
     const balance = await LeaveBalance.findOne({
@@ -370,9 +397,10 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
 
     if (balance) {
       balance.usedDays += leaveRequest.numberOfDays;
-      balance.pendingDays = Math.max(0, balance.pendingDays - leaveRequest.numberOfDays);
-      balance.balanceDays = balance.totalAvailable - balance.usedDays;
-      await balance.save();
+balance.pendingDays -= leaveRequest.numberOfDays;
+balance.lastUpdatedAt = new Date();
+
+await balance.save();
     }
   } else if (
     leaveRequest.managerApproval.status === "rejected" ||
@@ -391,9 +419,11 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
     });
 
     if (balance) {
-      balance.pendingDays = Math.max(0, balance.pendingDays - leaveRequest.numberOfDays);
-      balance.balanceDays = balance.totalAvailable - balance.usedDays;
-      await balance.save();
+    balance.pendingDays -= leaveRequest.numberOfDays;
+balance.balanceDays += leaveRequest.numberOfDays;
+balance.lastUpdatedAt = new Date();
+
+await balance.save();
     }
   } else {
     leaveRequest.status = "pending";
@@ -401,7 +431,6 @@ export async function approveLeaveRequest(id, approvalType, data, userId) {
 
   await leaveRequest.save();
 
-  
   if (leaveRequest.status !== "pending") {
     await notifyLeaveStatusChange(leaveRequest._id, leaveRequest.employee, leaveRequest.status);
   }
@@ -421,7 +450,6 @@ export async function cancelLeaveRequest(id, data, userId) {
   }
 
   if (leaveRequest.status === "approved") {
-    
     await Attendance.updateMany(
       {
         date: { $gte: leaveRequest.startDate, $lte: leaveRequest.endDate },
@@ -432,7 +460,6 @@ export async function cancelLeaveRequest(id, data, userId) {
       { isDeleted: true, deletedAt: new Date() }
     );
 
-    
     const currentYear = new Date().getFullYear();
     const financialYear = `${currentYear}-${currentYear + 1}`;
     const balance = await LeaveBalance.findOne({
@@ -443,9 +470,15 @@ export async function cancelLeaveRequest(id, data, userId) {
     });
 
     if (balance) {
-      balance.usedDays = Math.max(0, balance.usedDays - leaveRequest.numberOfDays);
-      balance.balanceDays = balance.totalAvailable - balance.usedDays;
-      await balance.save();
+      balance.usedDays = Math.max(
+  0,
+  balance.usedDays - leaveRequest.numberOfDays
+);
+
+balance.balanceDays += leaveRequest.numberOfDays;
+balance.lastUpdatedAt = new Date();
+
+await balance.save();
     }
   }
 
@@ -456,7 +489,6 @@ export async function cancelLeaveRequest(id, data, userId) {
 
   await leaveRequest.save();
 
-  
   await notifyLeaveStatusChange(leaveRequest._id, leaveRequest.employee, "cancelled");
 
   return leaveRequest.populate([
