@@ -56,16 +56,15 @@ export default function PaymentFormPage() {
 
     setLoading(true);
     try {
-      const invoice = invoices.find((inv) => inv._id === formData.invoice);
-      const payload = {
-        invoice: formData.invoice,
-        student: invoice?.student?._id,
-        amount: Number(formData.amount),
-        mode: formData.mode,
-        referenceNumber: formData.referenceNumber,
-        paymentDate: new Date(formData.paymentDate),
-        notes: formData.notes,
-      };
+      
+    const payload = {
+  invoice: formData.invoice,
+  amount: Number(formData.amount),
+  mode: formData.mode,
+  referenceNumber: formData.referenceNumber,
+  paymentDate: new Date(formData.paymentDate),
+  notes: formData.notes,
+};
 
       const payment = await createPayment(payload);
       toast({ title: 'Payment recorded', status: 'success' });
